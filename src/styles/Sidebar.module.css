@@ -1,0 +1,82 @@
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    position: fixed;
+    left: 0;
+    top: 0;
+    z-index: 50;
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.02);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 24px;
+    font-weight: 800;
+    color: var(--primary);
+    /* Use Brand Blue */
+    margin-bottom: 40px;
+    letter-spacing: -0.5px;
+}
+
+.nav {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+}
+
+.navItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    /* Darker gray */
+    cursor: pointer;
+    transition: all 0.2s ease;
+    position: relative;
+    font-weight: 600;
+    /* Bolder text */
+    font-size: 15px;
+}
+
+.navItem:hover {
+    background: var(--background);
+    /* Light gray hover */
+    color: var(--primary);
+}
+
+.active {
+    background: var(--primary-light);
+    /* Soft Blue BG */
+    color: var(--primary);
+    /* Strong Blue Text */
+}
+
+.activeIndicator {
+    position: absolute;
+    left: 0;
+    /* Left-side pill indicator looks cleaner */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 24px;
+    border-radius: 0 4px 4px 0;
+    background: var(--primary);
+}
+
+.footer {
+    border-top: 1px solid var(--border);
+    padding-top: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}

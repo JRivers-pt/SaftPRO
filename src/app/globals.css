@@ -1,0 +1,80 @@
+:root {
+  /* "Rose Comfort" Theme - Warm, Soft, and Feminine */
+
+  /* Backgrounds: Clearly Rosy/Creamy to avoid "Medical White" feel */
+  --background: #fdf2f5;
+  /* A distinct warm rose-cream */
+  --surface: #ffffff;
+  /* Cards remain white for data clarity, but sit on a rosy background */
+
+  /* Highlight: Soft Rose/Peach for hover states */
+  --surface-highlight: #fce7f3;
+
+  /* Border: Deeper Rose to define structure */
+  --border: #fbcfe8;
+
+  /* Brand: Kept the Blue Logo color but mixed with warmer accents */
+  --primary: #0066b3;
+  --primary-light: #e0f2fe;
+
+  /* Accents - Warm and Inviting */
+  --accent: #ec4899;
+  /* Vibrant Pink for active elements */
+  --accent-secondary: #14b8a6;
+  /* Teal */
+
+  /* Typography - Slate with Warmth */
+  --text-main: #334155;
+  --text-secondary: #64748b;
+  --text-muted: #94a3b8;
+
+  /* Semantic Colors */
+  --success: #10b981;
+  --warning: #f59e0b;
+  --error: #ef4444;
+
+  --radius-sm: 12px;
+  --radius-md: 18px;
+  --radius-lg: 26px;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background-color: var(--background);
+  color: var(--text-main);
+  font-family: 'Outfit', sans-serif;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  color: #1e293b;
+  /* Darker distinct headers */
+  font-weight: 700;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: #fbcfe8;
+  /* Pinkish scrollbar */
+  border-radius: 5px;
+  border: 2px solid var(--background);
+}

@@ -1,0 +1,16 @@
+{
+    "name": "ContaFranca - Analisador SAFT",
+    "short_name": "ContaFranca",
+    "description": "Validador e Analisador de ficheiros SAFT (PT) com processamento local seguro.",
+    "start_url": "/",
+    "display": "standalone",
+    "background_color": "#fdf2f5",
+    "theme_color": "#be185d",
+    "icons": [
+        {
+            "src": "/favicon.ico",
+            "sizes": "64x64 32x32 24x24 16x16",
+            "type": "image/x-icon"
+        }
+    ]
+}

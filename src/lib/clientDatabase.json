@@ -1,0 +1,34 @@
+{
+    "clients": [
+        {
+            "id": "contafranca",
+            "username": "contafranca",
+            "password": "cf2025",
+            "companyName": "ContaFranca",
+            "companyID": "PT123456789",
+            "logo": "/logo.jpg",
+            "primaryColor": "#2C5F8D",
+            "primaryLight": "#E8F1F8"
+        },
+        {
+            "id": "demo",
+            "username": "demo",
+            "password": "demo123",
+            "companyName": "Demo Company",
+            "companyID": "PT987654321",
+            "logo": "/logo.jpg",
+            "primaryColor": "#16A34A",
+            "primaryLight": "#DCFCE7"
+        },
+        {
+            "id": "admin",
+            "username": "admin",
+            "password": "admin2025",
+            "companyName": "SaftPRO Admin",
+            "companyID": "PT000000000",
+            "logo": "/logo.jpg",
+            "primaryColor": "#7C3AED",
+            "primaryLight": "#EDE9FE"
+        }
+    ]
+}

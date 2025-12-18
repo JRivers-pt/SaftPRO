@@ -1,0 +1,288 @@
+.main {
+    display: flex;
+    min-height: 100vh;
+    background-color: var(--background);
+}
+
+.content {
+    flex: 1;
+    margin-left: 260px;
+    padding: 40px;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-bottom: 40px;
+}
+
+.title {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+}
+
+.subtitle {
+    color: var(--text-secondary);
+    font-size: 16px;
+}
+
+.headerActions {
+    display: flex;
+    gap: 16px;
+}
+
+.btnPrimary,
+.btnSecondary {
+    padding: 12px 24px;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 15px;
+}
+
+.btnPrimary {
+    background: var(--primary);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 12px rgba(45, 117, 182, 0.2);
+    /* Soft blue shadow */
+}
+
+.btnPrimary:hover {
+    background: #1e5ba3;
+    transform: translateY(-1px);
+}
+
+.btnSecondary {
+    background: white;
+    color: var(--text-main);
+    border: 1px solid var(--border);
+}
+
+.btnSecondary:hover {
+    background: var(--surface-highlight);
+    border-color: #cbd5e1;
+}
+
+/* Upload Section */
+.uploadSection {
+    margin-bottom: 40px;
+}
+
+.uploadCard {
+    background: #ffffff;
+    border: 2px dashed #cbd5e1;
+    /* Lighter dashed border */
+    border-radius: var(--radius-lg);
+    padding: 60px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.uploadCard:hover {
+    border-color: var(--primary);
+    background: #f8fafc;
+    transform: scale(1.005);
+}
+
+.uploadIconWrapper {
+    display: inline-flex;
+    padding: 24px;
+    background: #eff6ff;
+    /* Light blue bg */
+    border-radius: 50%;
+    color: var(--primary);
+    margin-bottom: 24px;
+    box-shadow: none;
+}
+
+.uploadCard h3 {
+    font-size: 20px;
+    color: var(--text-main);
+    margin-bottom: 8px;
+}
+
+.uploadCard p {
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+}
+
+.supportedFormats {
+    font-size: 12px;
+    color: #64748b;
+    background: #f1f5f9;
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+/* Stats Grid */
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+}
+
+.statCard {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    transition: transform 0.2s;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+.statCard:hover {
+    transform: translateY(-4px);
+    border-color: var(--primary);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.04);
+}
+
+.statHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.statTitle {
+    color: var(--text-secondary);
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.statIcon {
+    padding: 10px;
+    border-radius: 10px;
+    background: #f3f4f6;
+    color: var(--text-main);
+}
+
+.iconPositive {
+    color: #166534;
+    background: #dcfce7;
+}
+
+.iconNegative {
+    color: #991b1b;
+    background: #fee2e2;
+}
+
+.statValue {
+    font-size: 30px;
+    font-weight: 700;
+    color: #1e293b;
+    /* Strong dark */
+    margin-bottom: 8px;
+}
+
+.statChange {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.textSuccess {
+    color: #15803d;
+}
+
+.textError {
+    color: #b91c1c;
+}
+
+/* Table Section */
+.recentSection h2 {
+    font-size: 20px;
+    margin-bottom: 24px;
+    color: var(--text-main);
+}
+
+.tableWrapper {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.01);
+}
+
+.table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.table th {
+    text-align: left;
+    padding: 16px 24px;
+    border-bottom: 1px solid var(--border);
+    color: #64748b;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    background: #f8fafc;
+    /* Header bg */
+}
+
+.table td {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-main);
+    font-size: 15px;
+    /* Larger text */
+}
+
+.table tr:last-child td {
+    border-bottom: none;
+}
+
+.table tr:hover td {
+    background: #f8fafc;
+}
+
+.riskBadge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+}
+
+.riskHigh {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.riskMedium {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.riskLow {
+    background: #dcfce7;
+    color: #166534;
+}
+
+/* Chart Section Helpers */
+.chartCard {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    padding: 24px;
+    width: 100%;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.02);
+}
+
+.chartHeader h2 {
+    font-size: 20px;
+    color: var(--text-main);
+    font-weight: 600;
+}
