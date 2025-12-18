@@ -1,5 +1,5 @@
 :root {
-  /* "Rose Comfort" Theme - Warm, Soft, and Feminine */
+  /* "Rose Comfort" Theme - Warm, Soft Light Mode */
 
   /* Backgrounds: Clearly Rosy/Creamy to avoid "Medical White" feel */
   --background: #fdf2f5;
@@ -38,10 +38,49 @@
   --radius-lg: 26px;
 }
 
+/* Eye-Friendly Dark Mode - Improved contrast for readability */
+[data-theme="dark"] {
+  /* Warm Dark Backgrounds - Lighter for better contrast */
+  --background: #1c1917;
+  /* Warm dark brown - slightly lighter */
+  --surface: #292524;
+  /* Card background - better contrast */
+
+  /* Highlight: More visible warm glow */
+  --surface-highlight: #44403c;
+
+  /* Border: More visible but still warm */
+  --border: #57534e;
+
+  /* Brand: Brighter for visibility */
+  --primary: #3b82f6;
+  --primary-light: #1e3a8a;
+
+  /* Accents - Brighter but still warm */
+  --accent: #ec4899;
+  /* Bright pink */
+  --accent-secondary: #14b8a6;
+  /* Bright teal */
+
+  /* Typography - Much higher contrast */
+  --text-main: #fafaf9;
+  /* Near white for main text */
+  --text-secondary: #e7e5e4;
+  /* Very light for secondary */
+  --text-muted: #a8a29e;
+  /* Lighter muted */
+
+  /* Semantic Colors - Vivid for visibility */
+  --success: #22c55e;
+  --warning: #eab308;
+  --error: #ef4444;
+}
+
 * {
   box-sizing: border-box;
   padding: 0;
   margin: 0;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
 body {
@@ -58,8 +97,7 @@ h3,
 h4,
 h5,
 h6 {
-  color: #1e293b;
-  /* Darker distinct headers */
+  color: var(--text-main);
   font-weight: 700;
 }
 
@@ -73,8 +111,11 @@ h6 {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #fbcfe8;
-  /* Pinkish scrollbar */
+  background: var(--border);
   border-radius: 5px;
   border: 2px solid var(--background);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary);
 }

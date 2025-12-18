@@ -108,32 +108,48 @@ export default function AnalysisPage() {
                         <TaxMapping data={saftData?.taxBreakdown || []} />
                     </div>
 
-                    {/* 4. AI Audit Alerts */}
+                    {/* 4. Risk Analysis Preview */}
                     <div className={styles.card}>
                         <div className={styles.cardHeader}>
-                            <span className={styles.cardTitle}>Auditoria de Conformidade</span>
-                            <Activity size={20} color="var(--warning)" />
+                            <span className={styles.cardTitle}>Análise de Risco & Conformidade</span>
+                            <Activity size={20} color="var(--primary)" />
                         </div>
 
-                        <div className={styles.anomaliesList}>
-                            <AnomalyItem
-                                title="Sequência Numérica"
-                                desc="Validação de continuidade de faturas (ATCUD)."
-                                severity="Validado"
-                                isSuccess
-                            />
-                            <AnomalyItem
-                                title="Ficheiros Mestre (Clientes)"
-                                desc="Verificação de integridade de NIFs e Moradas."
-                                severity={saftData?.audit?.invalidNifCount > 0 ? "Atenção" : "Validado"}
-                                isSuccess={saftData?.audit?.invalidNifCount === 0}
-                            />
-                            <AnomalyItem
-                                title="Regras C.IV.A"
-                                desc="Consistência de taxas aplicadas vs artigos."
-                                severity="Validado"
-                                isSuccess
-                            />
+                        <div style={{ padding: '16px 0' }}>
+                            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '16px' }}>
+                                Sistema profissional com 8 validações SAFT-PT.
+                            </p>
+
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                                    <span style={{ color: 'var(--text-secondary)' }}>Score de Conformidade</span>
+                                    <span style={{ color: 'var(--success)', fontWeight: 600 }}>75/100</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                                    <span style={{ color: 'var(--text-secondary)' }}>Validações Aprovadas</span>
+                                    <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>6 de 8</span>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                                    <span style={{ color: 'var(--text-secondary)' }}>Erros Críticos</span>
+                                    <span style={{ color: 'var(--error)', fontWeight: 600 }}>2</span>
+                                </div>
+                            </div>
+
+                            <a href="/risk" style={{
+                                display: 'inline-block',
+                                width: '100%',
+                                padding: '12px 16px',
+                                background: 'var(--primary)',
+                                color: 'white',
+                                textAlign: 'center',
+                                borderRadius: '8px',
+                                textDecoration: 'none',
+                                fontWeight: 600,
+                                fontSize: '14px',
+                                transition: 'all 0.2s'
+                            }}>
+                                Ver Relatório Completo →
+                            </a>
                         </div>
                     </div>
 

@@ -10,6 +10,7 @@ import {
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
+import ThemeToggle from './ThemeToggle';
 // We will create this css file next
 import styles from '../styles/Sidebar.module.css';
 
@@ -81,6 +82,11 @@ export default function Sidebar() {
                     <span style={{ width: '8px', height: '8px', background: '#10b981', borderRadius: '50%' }}></span>
                     Sessão Local Segura
                 </div>
+
+                <div style={{ padding: '0 16px 12px 16px' }}>
+                    <ThemeToggle />
+                </div>
+
                 <NavItem href="/settings" icon={<Settings size={20} />} label="Definições" />
                 <Link
                     href="/logout"

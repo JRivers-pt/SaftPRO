@@ -131,10 +131,10 @@ const RiskItem = ({ title, status, severity, details }) => (
             <div style={{
                 marginTop: '12px',
                 padding: '8px',
-                background: status === 'pass' ? '#f0fdf4' : '#fef2f2',
+                background: 'var(--surface-highlight)',
                 borderLeft: `4px solid ${status === 'pass' ? 'var(--success)' : 'var(--error)'}`,
                 fontSize: '13px',
-                color: 'var(--text-secondary)'
+                color: 'var(--text-main)'
             }}>
                 {details}
             </div>

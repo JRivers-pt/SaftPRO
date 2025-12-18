@@ -46,7 +46,7 @@
 }
 
 .card {
-    background: #ffffff;
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 24px;
@@ -70,7 +70,7 @@
 
 /* Custom Recharts Styling for Light Mode */
 .tooltip {
-    background: #ffffff !important;
+    background: var(--surface) !important;
     border: 1px solid var(--border) !important;
     border-radius: 8px;
     padding: 12px;
@@ -102,21 +102,21 @@
     justify-content: space-between;
     padding: 16px;
     border-radius: 12px;
-    background: #fff5f5;
+    background: var(--surface);
     /* Very light red */
     border-left: 4px solid var(--error);
 }
 
 .anomalyInfo h4 {
     font-size: 15px;
-    color: #334155;
+    color: var(--text-main);
     margin-bottom: 4px;
     font-weight: 600;
 }
 
 .anomalyInfo p {
     font-size: 13px;
-    color: #64748b;
+    color: var(--text-secondary);
 }
 
 .anomalySeverity {

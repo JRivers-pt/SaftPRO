@@ -59,7 +59,7 @@
 }
 
 .btnSecondary {
-    background: white;
+    background: var(--surface);
     color: var(--text-main);
     border: 1px solid var(--border);
 }
@@ -75,7 +75,7 @@
 }
 
 .uploadCard {
-    background: #ffffff;
+    background: var(--surface);
     border: 2px dashed #cbd5e1;
     /* Lighter dashed border */
     border-radius: var(--radius-lg);
@@ -117,7 +117,7 @@
 
 .supportedFormats {
     font-size: 12px;
-    color: #64748b;
+    color: var(--text-secondary);
     background: #f1f5f9;
     display: inline-block;
     padding: 6px 16px;
@@ -134,7 +134,7 @@
 }
 
 .statCard {
-    background: #ffffff;
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 24px;
@@ -181,7 +181,7 @@
 .statValue {
     font-size: 30px;
     font-weight: 700;
-    color: #1e293b;
+    color: var(--text-main);
     /* Strong dark */
     margin-bottom: 8px;
 }
@@ -207,7 +207,7 @@
 }
 
 .tableWrapper {
-    background: #ffffff;
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     overflow: hidden;
@@ -223,7 +223,7 @@
     text-align: left;
     padding: 16px 24px;
     border-bottom: 1px solid var(--border);
-    color: #64748b;
+    color: var(--text-secondary);
     font-size: 13px;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -273,7 +273,7 @@
 
 /* Chart Section Helpers */
 .chartCard {
-    background: #ffffff;
+    background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius-md);
     padding: 24px;

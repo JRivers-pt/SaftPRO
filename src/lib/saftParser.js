@@ -46,11 +46,12 @@ export const parseSaft = async (file) => {
                 for (let i = 0; i < invoices.length; i++) {
                     if (i >= MAX_INVOICES) break;
 
-                    // Extract Invoice Data for CSV
+                    // Extract Invoice Data for CSV and Validation
                     const invoiceDate = getTagValue(invoices[i], "InvoiceDate");
                     const invoiceNo = getTagValue(invoices[i], "InvoiceNo");
                     const customerID = getTagValue(invoices[i], "CustomerID"); // In real parser we'd look up Name
                     const taxID = getTagValue(invoices[i], "CustomerTaxID") || "999999990";
+                    const atcud = getTagValue(invoices[i], "ATCUD") || ""; // Extract ATCUD for validation
                     const docTotalsElement = invoices[i].getElementsByTagName("DocumentTotals")[0];
                     const docTotal = parseFloat(getTagValue(docTotalsElement, "GrossTotal") || "0");
                     const taxPayable = parseFloat(getTagValue(docTotalsElement, "TaxPayable") || "0");
@@ -61,6 +62,7 @@ export const parseSaft = async (file) => {
                         no: invoiceNo,
                         customer: `Clt ${customerID}`, // Simplified
                         nif: taxID,
+                        atcud: atcud, // NEW: For ATCUD validation
                         total: docTotal,
                         vat: taxPayable
                     });
