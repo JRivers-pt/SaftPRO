@@ -199,7 +199,7 @@ export default function AuthGuard({ children }) {
                     </form>
 
                     <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '24px' }}>
-                        © 2025 TechScire Solutions. Todos os direitos reservados. | SaftPro v1.2-TEST
+                        © 2025 TechScire Solutions. Todos os direitos reservados. | SaftPro v1.1
                     </p>
                 </div>
             </main>
