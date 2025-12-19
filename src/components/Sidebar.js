@@ -27,7 +27,7 @@ export default function Sidebar() {
         }
     }, []);
 
-    const companyName = clientData?.companyName || 'ContaFranca';
+    const companyName = clientData?.companyName || 'SaftPro';
     const logo = clientData?.logo || '/logo.jpg';
 
     // Split company name for styling

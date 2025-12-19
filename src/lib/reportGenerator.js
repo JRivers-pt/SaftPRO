@@ -15,7 +15,7 @@ export const generatePDF = (reportType, saftData) => {
     // Brand
     doc.setFontSize(24);
     doc.setTextColor(40, 40, 40);
-    doc.text("ContaFranca", 14, 20);
+    doc.text(company, 14, 20);
 
     doc.setFontSize(10);
     doc.setTextColor(150);
@@ -203,7 +203,7 @@ export const generatePDF = (reportType, saftData) => {
         doc.setPage(i);
         doc.setFontSize(8);
         doc.setTextColor(150);
-        doc.text(`Gerado por ContaFranca - Confidencial - Página ${i} de ${pageCount}`, 14, 285);
+        doc.text(`Powered by TechScire Solutions - Confidencial - Página ${i} de ${pageCount}`, 14, 285);
     }
 
     doc.save(`Analise_SAFT_${company.replace(/\s/g, '_')}_${year}.pdf`);
@@ -261,7 +261,7 @@ export const generateCSV = (reportType, saftData) => {
 
     // Footer
     csvContent += "\n";
-    csvContent += `Gerado por SAFT Pro - ContaFranca\n`;
+    csvContent += `Powered by TechScire Solutions\n`;
 
     // Create download
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });

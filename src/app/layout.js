@@ -4,7 +4,7 @@ import "./globals.css";
 const outfit = Outfit({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "ContaFranca - Analisador SAFT",
+  title: "SaftPro by TechScire Solutions",
   description: "Análise avançada de SAFT para contabilistas.",
   manifest: "/manifest.json",
 };
