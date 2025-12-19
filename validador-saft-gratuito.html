@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="pt">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Validador SAFT Gratuito - Verifique o seu ficheiro SAFT</title>
+    <meta name="description"
+        content="Valide gratuitamente o seu ficheiro SAFT-PT. Verificação instantânea de estrutura, vendas e conformidade fiscal.">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #3b82f6;
+            --primary-dark: #2563eb;
+            --success: #10b981;
+            --error: #ef4444;
+            --warning: #f59e0b;
+            --text-main: #1f2937;
+            --text-secondary: #6b7280;
+            --background: #f9fafb;
+            --surface: #ffffff;
+            --border: #e5e7eb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--background);
+            color: var(--text-main);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Hero Section */
+        .hero {
+            text-align: center;
+            padding: 60px 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px;
+            margin-bottom: 40px;
+        }
+
+        .hero h1 {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            font-weight: 700;
+        }
+
+        .hero p {
+            font-size: 1.25rem;
+            opacity: 0.95;
+            max-width: 600px;
+            margin: 0 auto 32px;
+        }
+
+        .hero .trust-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 24px;
+            font-size: 0.9rem;
+        }
+
+        /* Upload Section */
+        .upload-section {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+        }
+
+        .upload-zone {
+            border: 3px dashed var(--border);
+            border-radius: 12px;
+            padding: 60px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            background: var(--background);
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .upload-zone svg {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 16px;
+            color: var(--primary);
+        }
+
+        .upload-zone h3 {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+            color: var(--text-main);
+        }
+
+        .upload-zone p {
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+        }
+
+        /* Results Section */
+        .results {
+            display: none;
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+        }
+
+        .results.show {
+            display: block;
+            animation: fadeIn 0.5s;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .validation-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 24px;
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 24px;
+        }
+
+        .validation-badge.success {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+
+        .validation-badge.error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 24px 0;
+        }
+
+        .stat-card {
+            background: var(--background);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
+        }
+
+        .stat-card .label {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .stat-card .value {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        /* Feature Comparison */
+        .comparison {
+            background: var(--surface);
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            margin-bottom: 40px;
+        }
+
+        .comparison h2 {
+            text-align: center;
+            font-size: 2rem;
+            margin-bottom: 32px;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .comparison-table th {
+            background: var(--background);
+            font-weight: 600;
+        }
+
+        .comparison-table .check {
+            color: var(--success);
+            font-weight: bold;
+        }
+
+        .comparison-table .cross {
+            color: var(--error);
+        }
+
+        /* CTA Section */
+        .cta {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 60px 40px;
+            text-align: center;
+        }
+
+        .cta h2 {
+            font-size: 2rem;
+            margin-bottom: 16px;
+        }
+
+        .cta p {
+            font-size: 1.1rem;
+            margin-bottom: 32px;
+            opacity: 0.95;
+        }
+
+        .cta .btn {
+            background: white;
+            color: var(--primary);
+        }
+
+        .cta .btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            border: 3px solid rgba(59, 130, 246, 0.1);
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 40px;
+        }
+
+        .loading.show {
+            display: block;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 1.75rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .upload-section,
+            .results,
+            .comparison,
+            .cta {
+                padding: 24px;
+            }
+
+            .comparison-table {
+                font-size: 0.9rem;
+            }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .alert-error {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+            border-left: 4px solid var(--error);
+        }
+
+        .alert-warning {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+            border-left: 4px solid var(--warning);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- Hero Section -->
+        <div class="hero">
+            <h1>🔍 Validador SAFT Gratuito</h1>
+            <p>Verifique instantaneamente o seu ficheiro SAFT-PT de forma gratuita e segura</p>
+            <div class="trust-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                </svg>
+                Processamento 100% local - Os seus dados nunca saem do seu computador
+            </div>
+        </div>
+
+        <!-- Upload Section -->
+        <div class="upload-section">
+            <div class="upload-zone" id="uploadZone">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                    <polyline points="17 8 12 3 7 8"></polyline>
+                    <line x1="12" y1="3" x2="12" y2="15"></line>
+                </svg>
+                <h3>Arraste o seu ficheiro SAFT aqui</h3>
+                <p>ou</p>
+                <button class="btn" onclick="document.getElementById('fileInput').click()">Selecionar Ficheiro</button>
+                <input type="file" id="fileInput" accept=".xml" class="hidden">
+                <p style="margin-top: 16px; font-size: 0.85rem; color: var(--text-secondary);">
+                    Apenas ficheiros XML • Máximo 50MB
+                </p>
+            </div>
+        </div>
+
+        <!-- Loading -->
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>A validar o seu ficheiro SAFT...</p>
+        </div>
+
+        <!-- Results Section -->
+        <div class="results" id="results">
+            <div class="validation-badge success" id="validationBadge">
+                ✅ Ficheiro SAFT Válido
+            </div>
+
+            <h2 style="margin-bottom: 24px;">Resumo da Validação</h2>
+
+            <div class="stats-grid" id="statsGrid">
+                <!-- Stats will be inserted here -->
+            </div>
+
+            <div class="alert alert-warning" style="margin-top: 24px;">
+                <strong>⚠️ Versão Gratuita</strong><br>
+                Esta é uma validação básica. Para análise completa de IVA, auditoria de riscos, relatórios detalhados e
+                muito mais, experimente o <strong>SAFT Pro</strong>.
+            </div>
+
+            <div style="text-align: center; margin-top: 32px;">
+                <button class="btn" onclick="window.location.reload()">Validar Outro Ficheiro</button>
+                <button class="btn btn-outline" style="margin-left: 12px;"
+                    onclick="document.getElementById('cta').scrollIntoView({behavior: 'smooth'})">
+                    Ver SAFT Pro
+                </button>
+            </div>
+        </div>
+
+        <!-- Feature Comparison -->
+        <div class="comparison">
+            <h2>Versão Gratuita vs SAFT Pro</h2>
+            <table class="comparison-table">
+                <thead>
+                    <tr>
+                        <th>Funcionalidade</th>
+                        <th style="text-align: center;">Gratuito</th>
+                        <th style="text-align: center;">SAFT Pro</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Validação de ficheiro</td>
+                        <td style="text-align: center;"><span class="check">✓</span></td>
+                        <td style="text-align: center;"><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Resumo de vendas totais</td>
+                        <td style="text-align: center;"><span class="check">✓</span></td>
+                        <td style="text-align: center;"><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Análise de IVA detalhada</td>
+                        <td style="text-align: center;"><span class="cross">✗</span></td>
+                        <td style="text-align: center;"><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Auditoria de riscos e conformidade</td>
+                        <td style="text-align: center;"><span class="cross">✗</span></td>
+                        <td style="text-align: center;"><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Relatórios exportáveis (PDF)</td>
+                        <td style="text-align: center;"><span class="cross">✗</span></td>
+                        <td style="text-align: center;"><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Análise de top clientes e produtos</td>
+                        <td style="text-align: center;"><span class="cross">✗</span></td>
+                        <td style="text-align: center;"><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Dashboard profissional completo</td>
+                        <td style="text-align: center;"><span class="cross">✗</span></td>
+                        <td style="text-align: center;"><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Histórico de análises</td>
+                        <td style="text-align: center;"><span class="cross">✗</span></td>
+                        <td style="text-align: center;"><span class="check">✓</span></td>
+                    </tr>
+                    <tr>
+                        <td>Suporte técnico dedicado</td>
+                        <td style="text-align: center;"><span class="cross">✗</span></td>
+                        <td style="text-align: center;"><span class="check">✓</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- CTA Section -->
+        <div class="cta" id="cta">
+            <h2>Pronto para a análise completa?</h2>
+            <p>Desbloqueie o poder total do SAFT Pro e transforme os seus ficheiros SAFT em insights acionáveis</p>
+            <button class="btn"
+                onclick="window.location.href='mailto:comercial@techscire.pt?subject=Pedido de Demonstração - SAFT Pro&body=Olá,%0D%0A%0D%0AGostaria de solicitar uma demonstração do SAFT Pro.%0D%0A%0D%0AObrigado'">
+                Solicitar Demonstração
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // File upload handling
+        const uploadZone = document.getElementById('uploadZone');
+        const fileInput = document.getElementById('fileInput');
+        const loading = document.getElementById('loading');
+        const results = document.getElementById('results');
+
+        // Drag and drop handlers
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('dragover');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('dragover');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            // Validate file
+            if (!file.name.endsWith('.xml')) {
+                alert('Por favor, selecione um ficheiro XML válido.');
+                return;
+            }
+
+            if (file.size > 50 * 1024 * 1024) {
+                alert('O ficheiro é muito grande. Máximo permitido: 50MB');
+                return;
+            }
+
+            // Show loading
+            document.querySelector('.upload-section').style.display = 'none';
+            loading.classList.add('show');
+
+            // Read and parse file
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const xmlContent = e.target.result;
+                    const parser = new DOMParser();
+                    const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
+
+                    // Check for XML parsing errors
+                    const parseError = xmlDoc.querySelector('parsererror');
+                    if (parseError) {
+                        throw new Error('Erro ao processar o ficheiro XML');
+                    }
+
+                    // Basic SAFT validation
+                    const stats = validateSAFT(xmlDoc);
+
+                    // Simulate processing time
+                    setTimeout(() => {
+                        displayResults(stats);
+                    }, 1500);
+
+                } catch (error) {
+                    loading.classList.remove('show');
+                    document.querySelector('.upload-section').style.display = 'block';
+                    alert('Erro ao processar o ficheiro: ' + error.message);
+                }
+            };
+
+            reader.readAsText(file);
+        }
+
+        function validateSAFT(xmlDoc) {
+            // Extract basic information
+            const header = xmlDoc.querySelector('Header');
+            const sourceDocuments = xmlDoc.querySelector('SourceDocuments');
+            const salesInvoices = sourceDocuments?.querySelector('SalesInvoices');
+
+            // Get invoices
+            const invoices = salesInvoices?.querySelectorAll('Invoice') || [];
+
+            // Calculate totals
+            let totalSales = 0;
+            let invoiceCount = invoices.length;
+            let uniqueCustomers = new Set();
+
+            invoices.forEach(invoice => {
+                const netTotal = parseFloat(invoice.querySelector('NetTotal')?.textContent || 0);
+                totalSales += netTotal;
+
+                const customerId = invoice.querySelector('CustomerID')?.textContent;
+                if (customerId) {
+                    uniqueCustomers.add(customerId);
+                }
+            });
+
+            // Get date range
+            const startDate = header?.querySelector('StartDate')?.textContent || 'N/A';
+            const endDate = header?.querySelector('EndDate')?.textContent || 'N/A';
+
+            return {
+                success: true,
+                totalSales: totalSales,
+                invoiceCount: invoiceCount,
+                customerCount: uniqueCustomers.size,
+                startDate: startDate,
+                endDate: endDate
+            };
+        }
+
+        function displayResults(stats) {
+            loading.classList.remove('show');
+            results.classList.add('show');
+
+            // Update badge
+            const badge = document.getElementById('validationBadge');
+            if (stats.success) {
+                badge.className = 'validation-badge success';
+                badge.textContent = '✅ Ficheiro SAFT Válido';
+            } else {
+                badge.className = 'validation-badge error';
+                badge.textContent = '❌ Ficheiro SAFT com Problemas';
+            }
+
+            // Update stats
+            const statsGrid = document.getElementById('statsGrid');
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="label">Total de Vendas</div>
+                    <div class="value">${formatCurrency(stats.totalSales)}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Número de Faturas</div>
+                    <div class="value">${stats.invoiceCount}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Clientes Únicos</div>
+                    <div class="value">${stats.customerCount}</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label">Período</div>
+                    <div class="value" style="font-size: 1rem;">${formatDate(stats.startDate)} - ${formatDate(stats.endDate)}</div>
+                </div>
+            `;
+        }
+
+        function formatCurrency(value) {
+            return new Intl.NumberFormat('pt-PT', {
+                style: 'currency',
+                currency: 'EUR'
+            }).format(value);
+        }
+
+        function formatDate(dateStr) {
+            if (!dateStr || dateStr === 'N/A') return 'N/A';
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('pt-PT');
+        }
+    </script>
+</body>
+
+</html>

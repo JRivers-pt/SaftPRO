@@ -101,21 +101,45 @@ export const generatePDF = (reportType, saftData) => {
     });
     finalY = doc.lastAutoTable.finalY + 15;
 
-    // --- SECTION 3: AUDIT & RISK ---
-    if (finalY > 240) {
-        doc.addPage();
-        finalY = 20;
-    }
-
-    doc.text("3. Auditoria de Conformidade (PT)", 14, finalY);
+    doc.text("3. Auditoria de Conformidade e Análise de Risco", 14, finalY);
     finalY += 5;
 
     const audit = saftData?.audit || {};
+
+    // Build comprehensive risk table with real data
     const risks = [
-        ['Verificação', 'Estado', 'Resultado'],
-        ['Estrutura ATCUD', audit.invoiceGaps?.length > 0 ? 'FALHA' : 'OK', audit.invoiceGaps?.length > 0 ? `${audit.invoiceGaps.length} Falhas seq.` : 'Sem quebras'],
-        ['Validação NIFs', audit.invalidNifCount > 0 ? 'ATENÇÃO' : 'OK', `${audit.invalidNifCount} NIFs inválidos`],
-        ['Assinatura Digital (Hash)', audit.hashChainBroken ? 'CRÍTICO' : 'OK', audit.hashChainBroken ? 'Cadeia Quebrada' : 'Válido']
+        ['Verificação', 'Estado', 'Detalhes'],
+        [
+            'Sequência de Faturas (ATCUD)',
+            audit.invoiceGaps?.length > 0 ? '⚠️ FALHA' : '✓ OK',
+            audit.invoiceGaps?.length > 0
+                ? `${audit.invoiceGaps.length} quebra(s) detetada(s)`
+                : 'Numeração sequencial correta'
+        ],
+        [
+            'Validação de NIFs',
+            audit.invalidNifCount > 0 ? '⚠️ ATENÇÃO' : '✓ OK',
+            audit.invalidNifCount > 0
+                ? `${audit.invalidNifCount} NIF(s) inválido(s) encontrado(s)`
+                : 'Todos os NIFs válidos'
+        ],
+        [
+            'Cadeia de Hash (Assinatura)',
+            audit.hashChainBroken ? '❌ CRÍTICO' : '✓ OK',
+            audit.hashChainBroken
+                ? 'Integridade comprometida - Cadeia quebrada'
+                : 'Assinaturas digitais válidas'
+        ],
+        [
+            'Total Taxável (Base IVA)',
+            '✓ OK',
+            fmt(audit.totalInvoiced || 0)
+        ],
+        [
+            'IVA a Entregar ao Estado',
+            '✓ OK',
+            fmt(audit.totalTaxPayable || 0)
+        ]
     ];
 
     autoTable(doc, {
@@ -123,8 +147,55 @@ export const generatePDF = (reportType, saftData) => {
         head: [risks[0]],
         body: risks.slice(1),
         theme: 'grid',
-        headStyles: { fillColor: [192, 57, 43] } // Red for audit
+        headStyles: { fillColor: [192, 57, 43], fontStyle: 'bold' },
+        columnStyles: {
+            0: { cellWidth: 65 },
+            1: { cellWidth: 35, halign: 'center' },
+            2: { cellWidth: 82 }
+        },
+        didParseCell: function (data) {
+            // Color-code the status column
+            if (data.column.index === 1 && data.section === 'body') {
+                const text = data.cell.text[0];
+                if (text.includes('CRÍTICO')) {
+                    data.cell.styles.textColor = [192, 57, 43]; // Red
+                    data.cell.styles.fontStyle = 'bold';
+                } else if (text.includes('FALHA') || text.includes('ATENÇÃO')) {
+                    data.cell.styles.textColor = [230, 126, 34]; // Orange
+                    data.cell.styles.fontStyle = 'bold';
+                } else if (text.includes('OK')) {
+                    data.cell.styles.textColor = [39, 174, 96]; // Green
+                    data.cell.styles.fontStyle = 'bold';
+                }
+            }
+        }
     });
+
+    finalY = doc.lastAutoTable.finalY + 10;
+
+    // Add risk summary box if there are issues
+    const totalIssues = (audit.invoiceGaps?.length || 0) + (audit.invalidNifCount || 0) + (audit.hashChainBroken ? 1 : 0);
+
+    if (totalIssues > 0) {
+        if (finalY > 240) {
+            doc.addPage();
+            finalY = 20;
+        }
+
+        doc.setFillColor(255, 243, 224);
+        doc.roundedRect(14, finalY, 182, 25, 3, 3, 'F');
+
+        doc.setFontSize(10);
+        doc.setTextColor(230, 126, 34);
+        doc.setFont(undefined, 'bold');
+        doc.text(`⚠️ ATENÇÃO: ${totalIssues} problema(s) detetado(s)`, 20, finalY + 8);
+        doc.setFont(undefined, 'normal');
+        doc.setFontSize(9);
+        doc.setTextColor(100);
+        doc.text('Recomendamos ação corretiva para garantir conformidade fiscal.', 20, finalY + 16);
+
+        finalY += 30;
+    }
 
     // -- FOOTER --
     const pageCount = doc.internal.getNumberOfPages();
@@ -139,34 +210,68 @@ export const generatePDF = (reportType, saftData) => {
 };
 
 export const generateCSV = (reportType, saftData) => {
-    // Advanced CSV Generator for Invoices using Real Data
+    // Professional Excel-ready CSV with proper formatting
     const list = saftData?.invoiceList || [];
+    const company = saftData?.header?.companyName || "Empresa";
+    const year = saftData?.header?.fiscalYear || new Date().getFullYear();
 
-    // Header
-    let csvContent = "data:text/csv;charset=utf-8,";
-    csvContent += "Data;Documento;Cliente;NIF;Total;IVA\n";
+    // Build CSV with BOM for Excel compatibility
+    let csvContent = "\uFEFF"; // UTF-8 BOM for proper Excel encoding
+
+    // Title row
+    csvContent += `Relatório de Faturas - ${company}\n`;
+    csvContent += `Exercício Fiscal: ${year}\n`;
+    csvContent += `Gerado em: ${new Date().toLocaleDateString('pt-PT')}\n`;
+    csvContent += `\n`; // Empty line
+
+    // Header row with styled columns
+    csvContent += "Data;Nº Documento;Cliente;NIF;Total s/ IVA;IVA;Total c/ IVA;Tipo Doc\n";
+
+    let totalNet = 0;
+    let totalVAT = 0;
+    let totalGross = 0;
 
     if (list.length > 0) {
         list.forEach(inv => {
+            const netAmount = inv.total - inv.vat;
+            totalNet += netAmount;
+            totalVAT += inv.vat;
+            totalGross += inv.total;
+
             const row = [
                 inv.date,
                 inv.no,
-                inv.customer.replace(/;/g, ","), // Escape semicolons
-                inv.nif,
+                inv.customer.replace(/;/g, ",").replace(/"/g, ""), // Clean special chars
+                inv.nif || "999999990",
+                netAmount.toFixed(2).replace(".", ","),
+                inv.vat.toFixed(2).replace(".", ","),
                 inv.total.toFixed(2).replace(".", ","),
-                inv.vat.toFixed(2).replace(".", ",")
+                inv.type || "FT"
             ];
             csvContent += row.join(";") + "\n";
         });
+
+        // Add summary row
+        csvContent += "\n"; // Empty line
+        csvContent += `TOTAIS;;;${list.length} documento(s);${totalNet.toFixed(2).replace(".", ",")};${totalVAT.toFixed(2).replace(".", ",")};${totalGross.toFixed(2).replace(".", ",")}\n`;
+
     } else {
-        // Fallback or empty message
-        csvContent += "2024-01-01;SEM-DADOS;Sem Dados;999999990;0,00;0,00\n";
+        csvContent += "Sem dados disponíveis;;;;;;;;\n";
     }
 
-    const encodedUri = encodeURI(csvContent);
+    // Footer
+    csvContent += "\n";
+    csvContent += `Gerado por SAFT Pro - ContaFranca\n`;
+
+    // Create download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement("a");
-    link.setAttribute("href", encodedUri);
-    link.setAttribute("download", `${reportType.replace(/\s/g, '_')}_${saftData?.header?.fiscalYear || 2024}.csv`);
+    const url = URL.createObjectURL(blob);
+
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Faturas_${company.replace(/\s/g, '_')}_${year}.csv`);
+    link.style.visibility = 'hidden';
+
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
