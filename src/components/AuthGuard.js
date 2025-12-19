@@ -175,27 +175,6 @@ export default function AuthGuard({ children }) {
                             Entrar
                         </button>
 
-                        <button
-                            type="button"
-                            onClick={() => {
-                                localStorage.clear();
-                                sessionStorage.clear();
-                                window.location.reload();
-                            }}
-                            style={{
-                                width: '100%',
-                                padding: '10px',
-                                marginTop: '12px',
-                                background: 'transparent',
-                                color: 'var(--text-secondary)',
-                                border: '1px solid var(--border)',
-                                borderRadius: '8px',
-                                fontSize: '13px',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            🔄 Limpar Cache
-                        </button>
                     </form>
 
                     <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '24px' }}>
