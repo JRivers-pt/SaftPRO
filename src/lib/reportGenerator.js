@@ -101,8 +101,8 @@ export const generatePDF = (reportType, saftData) => {
     });
     finalY = doc.lastAutoTable.finalY + 15;
 
-    // Check page break before audit section
-    if (finalY > 240) {
+    // Check page break before audit section (more conservative threshold)
+    if (finalY > 200) {
         doc.addPage();
         finalY = 20;
     }
@@ -155,6 +155,7 @@ export const generatePDF = (reportType, saftData) => {
         head: [risks[0]],
         body: risks.slice(1),
         theme: 'grid',
+        margin: { bottom: 40 }, // Prevent overflow at page bottom
         headStyles: { fillColor: [192, 57, 43], fontStyle: 'bold' },
         columnStyles: {
             0: { cellWidth: 60 },
@@ -163,7 +164,8 @@ export const generatePDF = (reportType, saftData) => {
         },
         styles: {
             fontSize: 9,
-            cellPadding: 3
+            cellPadding: 3,
+            overflow: 'linebreak'
         },
         didParseCell: function (data) {
             // Color-code the status column
@@ -203,11 +205,11 @@ export const generatePDF = (reportType, saftData) => {
         doc.setFontSize(10);
         doc.setTextColor(230, 126, 34);
         doc.setFont(undefined, 'bold');
-        doc.text(`⚠️ ATENÇÃO: ${totalIssues} problema(s) detetado(s)`, 20, finalY + 8);
+        doc.text(`ATENCAO: ${totalIssues} problema(s) detetado(s)`, 20, finalY + 8);
         doc.setFont(undefined, 'normal');
         doc.setFontSize(9);
         doc.setTextColor(100);
-        doc.text('Recomendamos ação corretiva para garantir conformidade fiscal.', 20, finalY + 16);
+        doc.text('Recomendamos acao corretiva para garantir conformidade fiscal.', 20, finalY + 16);
 
         finalY += 30;
     }
