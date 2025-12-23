@@ -1,7 +1,8 @@
 "use client";
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../../components/Sidebar';
-import { generatePDF, generateCSV } from '../../lib/reportGenerator';
+import { generatePDF } from '../../lib/reportGenerator';
+import { generateProfessionalExcel } from '../../lib/excelGenerator';
 import { FileText, Download, Calendar } from 'lucide-react';
 import styles from '../../styles/Analysis.module.css';
 
@@ -21,7 +22,7 @@ export default function ReportsPage() {
     // Using distinct IDs to map to generator types
     const reports = [
         { id: 'EXEC', name: `Relatório Executivo - ${companyName}`, date: `Exercício ${fiscalYear}`, type: 'PDF' },
-        { id: 'CSV', name: `Extrato de Faturação Detalhado`, date: `Todas as faturas`, type: 'CSV' },
+        { id: 'EXCEL', name: `Extrato Financeiro Profissional (Excel)`, date: `Todas as faturas`, type: 'XLSX' },
         { id: 'IVA', name: `Mapa de Impostos (IVA)`, date: `Resumo Mensal`, type: 'PDF' },
     ];
 
@@ -31,8 +32,8 @@ export default function ReportsPage() {
             return;
         }
 
-        if (report.type === 'CSV') {
-            generateCSV(report.name, saftData);
+        if (report.type === 'XLSX') {
+            generateProfessionalExcel(saftData);
         } else {
             // PDF Handling
             let type = "Relatório Genérico";

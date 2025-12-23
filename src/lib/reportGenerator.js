@@ -101,8 +101,16 @@ export const generatePDF = (reportType, saftData) => {
     });
     finalY = doc.lastAutoTable.finalY + 15;
 
+    // Check page break before audit section
+    if (finalY > 240) {
+        doc.addPage();
+        finalY = 20;
+    }
+
+    doc.setFontSize(12);
+    doc.setTextColor(0, 50, 100);
     doc.text("3. Auditoria de Conformidade e Análise de Risco", 14, finalY);
-    finalY += 5;
+    finalY += 10;
 
     const audit = saftData?.audit || {};
 
@@ -111,33 +119,33 @@ export const generatePDF = (reportType, saftData) => {
         ['Verificação', 'Estado', 'Detalhes'],
         [
             'Sequência de Faturas (ATCUD)',
-            audit.invoiceGaps?.length > 0 ? '⚠️ FALHA' : '✓ OK',
+            audit.invoiceGaps?.length > 0 ? 'FALHA' : 'OK',
             audit.invoiceGaps?.length > 0
                 ? `${audit.invoiceGaps.length} quebra(s) detetada(s)`
                 : 'Numeração sequencial correta'
         ],
         [
             'Validação de NIFs',
-            audit.invalidNifCount > 0 ? '⚠️ ATENÇÃO' : '✓ OK',
+            audit.invalidNifCount > 0 ? 'ATENÇÃO' : 'OK',
             audit.invalidNifCount > 0
-                ? `${audit.invalidNifCount} NIF(s) inválido(s) encontrado(s)`
+                ? `${audit.invalidNifCount} NIF(s) inválido(s)`
                 : 'Todos os NIFs válidos'
         ],
         [
             'Cadeia de Hash (Assinatura)',
-            audit.hashChainBroken ? '❌ CRÍTICO' : '✓ OK',
+            audit.hashChainBroken ? 'CRÍTICO' : 'OK',
             audit.hashChainBroken
-                ? 'Integridade comprometida - Cadeia quebrada'
+                ? 'Integridade comprometida'
                 : 'Assinaturas digitais válidas'
         ],
         [
             'Total Taxável (Base IVA)',
-            '✓ OK',
+            'OK',
             fmt(audit.totalInvoiced || 0)
         ],
         [
             'IVA a Entregar ao Estado',
-            '✓ OK',
+            'OK',
             fmt(audit.totalTaxPayable || 0)
         ]
     ];
@@ -149,22 +157,29 @@ export const generatePDF = (reportType, saftData) => {
         theme: 'grid',
         headStyles: { fillColor: [192, 57, 43], fontStyle: 'bold' },
         columnStyles: {
-            0: { cellWidth: 65 },
-            1: { cellWidth: 35, halign: 'center' },
-            2: { cellWidth: 82 }
+            0: { cellWidth: 60 },
+            1: { cellWidth: 30, halign: 'center' },
+            2: { cellWidth: 92 }
+        },
+        styles: {
+            fontSize: 9,
+            cellPadding: 3
         },
         didParseCell: function (data) {
             // Color-code the status column
             if (data.column.index === 1 && data.section === 'body') {
                 const text = data.cell.text[0];
                 if (text.includes('CRÍTICO')) {
-                    data.cell.styles.textColor = [192, 57, 43]; // Red
+                    data.cell.styles.fillColor = [255, 235, 235];
+                    data.cell.styles.textColor = [192, 57, 43];
                     data.cell.styles.fontStyle = 'bold';
                 } else if (text.includes('FALHA') || text.includes('ATENÇÃO')) {
-                    data.cell.styles.textColor = [230, 126, 34]; // Orange
+                    data.cell.styles.fillColor = [255, 248, 235];
+                    data.cell.styles.textColor = [230, 126, 34];
                     data.cell.styles.fontStyle = 'bold';
                 } else if (text.includes('OK')) {
-                    data.cell.styles.textColor = [39, 174, 96]; // Green
+                    data.cell.styles.fillColor = [235, 255, 242];
+                    data.cell.styles.textColor = [39, 174, 96];
                     data.cell.styles.fontStyle = 'bold';
                 }
             }
