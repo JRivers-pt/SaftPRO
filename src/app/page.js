@@ -1,12 +1,14 @@
 "use client";
 import Sidebar from '../components/Sidebar';
 import styles from '../styles/Dashboard.module.css';
-import { UploadCloud, CheckCircle, AlertTriangle, TrendingUp, DollarSign, FileStack, Users, Activity, FileText } from 'lucide-react';
+import { Upload, CheckCircle, AlertTriangle, TrendingUp, DollarSign, FileStack, Users, Activity, FileText, Zap, ShieldCheck } from 'lucide-react';
 import Link from 'next/link';
 import VatDashboard from '../components/VatDashboard';
 import { useRef, useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { parseSaft } from '../lib/saftParser';
+import { demoData } from '../lib/demoData';
+import { supabase } from '../lib/supabaseClient';
 
 export default function Home() {
   const router = useRouter();
@@ -26,6 +28,47 @@ export default function Home() {
     fileInputRef.current.click();
   };
 
+  const saveToHistory = async (data) => {
+    if (typeof window === 'undefined') return;
+    
+    // 1. Local Persistence (Fast)
+    const history = JSON.parse(localStorage.getItem('saftHistory') || '[]');
+    const newEntry = {
+        id: Date.now(),
+        fileName: data.fileName,
+        company: data.header.companyName,
+        nif: data.header.companyID,
+        year: data.header.fiscalYear,
+        totalSales: data.kpi.totalSales,
+        dateAnalyzed: new Date().toISOString(),
+        isDemo: data.isDemo || false
+    };
+    
+    const updatedHistory = [newEntry, ...history.filter(h => h.nif !== data.header.companyID)].slice(0, 10);
+    localStorage.setItem('saftHistory', JSON.stringify(updatedHistory));
+
+    // 2. Cloud Sync (if authenticated)
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session && !data.isDemo) {
+        try {
+            await supabase.from('saft_logs').insert({
+                user_id: session.user.id,
+                file_name: data.fileName,
+                company_name: data.header.companyName,
+                tax_id: data.header.companyID,
+                fiscal_year: data.header.fiscalYear,
+                total_sales: data.kpi.totalSales,
+                metadata: {
+                    invoices: data.kpi.totalInvoices,
+                    audits: data.audit?.totalTaxPayable
+                }
+            });
+        } catch (e) {
+            console.error("Cloud sync failed:", e);
+        }
+    }
+  };
+
   const handleFileChange = async (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -33,15 +76,20 @@ export default function Home() {
       try {
         const data = await parseSaft(file);
         sessionStorage.setItem('saftData', JSON.stringify(data));
+        saveToHistory(data);
         setSaftData(data); // Immediate update state
         setIsUploading(false);
-        // No redirect - we stay here!
       } catch (error) {
         console.error(error);
         alert("Erro ao ler ficheiro SAFT. Verifique se é um XML válido.");
         setIsUploading(false);
       }
     }
+  };
+
+  const handleDemoMode = () => {
+    sessionStorage.setItem('saftData', JSON.stringify(demoData));
+    setSaftData(demoData);
   };
 
   const clearSession = () => {
@@ -85,11 +133,34 @@ export default function Home() {
               ) : (
                 <>
                   <div className={styles.uploadIconWrapper}>
-                    <UploadCloud size={64} />
+                    <Upload size={56} strokeWidth={1.5} />
                   </div>
-                  <h3>Arraste o ficheiro SAFT aqui</h3>
-                  <p>ou clique para selecionar do computador</p>
-                  <div className={styles.supportedFormats}>Suporta XML (Standard Audit File for Tax) - PT v1.04</div>
+                  <h3>Analise o seu ficheiro SAF-T</h3>
+                  <p>Arraste e solte o ficheiro ou clique para procurar</p>
+                  <div className={styles.supportedFormats} style={{ marginBottom: '32px' }}>
+                    <ShieldCheck size={12} style={{ display: 'inline', marginRight: '6px' }} />
+                    Conformidade Legal PT v1.04
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
+                    <button className={styles.btnSecondary} onClick={handleDemoMode} style={{ borderRadius: '12px' }}>
+                        Ver Demonstração
+                    </button>
+                    <button 
+                        className={styles.btnPrimary} 
+                        style={{ 
+                            background: 'linear-gradient(135deg, #000000 0%, #2c3e50 100%)', 
+                            borderColor: 'transparent',
+                            borderRadius: '12px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                        }} 
+                        onClick={handleUploadClick}
+                    >
+                        <Zap size={18} /> Carregar Pro
+                    </button>
+                  </div>
                 </>
               )}
             </div>

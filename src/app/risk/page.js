@@ -6,25 +6,21 @@ import styles from '../../styles/Analysis.module.css';
 import { parseSaft } from '../../lib/saftParser';
 import { runAudit } from '../../lib/auditEngine';
 
+import PlanGuard from '../../components/PlanGuard';
+
 export default function RiskPage() {
     const [loading, setLoading] = useState(true);
     const [auditResults, setAuditResults] = useState([]);
     const [score, setScore] = useState(0);
 
     useEffect(() => {
-        // Simulate loading and processing
         const loadData = async () => {
-            // Try getting real data from session
             const raw = sessionStorage.getItem('saftData');
             let data = null;
 
             if (raw) {
                 data = JSON.parse(raw);
             } else {
-                // Fallback for direct page access without upload (Mock)
-                // We can't use parseSaft(null) anymore as it expects a file.
-                // So we construct a basic mock object manually or redirect.
-                // For user experience, we'll create a mock object.
                 data = {
                     header: { companyName: "Demonstração (Sem Dados)" },
                     structure: { hasSourceDocuments: true },
@@ -33,60 +29,57 @@ export default function RiskPage() {
             }
 
             const results = runAudit(data);
-
             setAuditResults(results);
-
-            // Calculate score
             const passed = results.filter(r => r.passed).length;
             setScore(Math.round((passed / results.length) * 100));
-
             setLoading(false);
         };
-
         loadData();
     }, []);
 
     return (
-        <main style={{ background: 'var(--background)', minHeight: '100vh' }}>
-            <Sidebar />
-            <div className={styles.container}>
-                <div className={styles.header}>
-                    <h1 className={styles.title}>Centro de Risco & Auditoria</h1>
-                    <p className={styles.subtitle}>Auditoria técnica e fiscal (Regras DGCI/AT)</p>
-                </div>
-
-                {loading ? (
-                    <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '100px' }}>
-                        <Loader2 size={40} className="animate-spin" color="var(--primary)" />
+        <PlanGuard>
+            <main style={{ background: 'var(--background)', minHeight: '100vh' }}>
+                <Sidebar />
+                <div className={styles.container}>
+                    <div className={styles.header}>
+                        <h1 className={styles.title}>Centro de Risco & Auditoria</h1>
+                        <p className={styles.subtitle}>Auditoria técnica e fiscal (Regras DGCI/AT)</p>
                     </div>
-                ) : (
-                    <>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
-                            <ScoreCard title="Score de Conformidade" value={`${score}/100`} status={score > 80 ? "Bom" : "Risco"} color={score > 80 ? "var(--success)" : "var(--error)"} />
-                            <ScoreCard title="Erros Críticos" value={auditResults.filter(r => !r.passed && r.severity === 'critical').length} status="Bloqueante" color="var(--error)" />
-                            <ScoreCard title="Avisos de Qualidade" value={auditResults.filter(r => !r.passed && r.severity !== 'critical').length} status="Rever" color="var(--warning)" />
-                        </div>
 
-                        <div className={styles.card}>
-                            <div className={styles.cardHeader}>
-                                <span className={styles.cardTitle}>Matriz de Auditoria</span>
-                            </div>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                                {auditResults.map((rule) => (
-                                    <RiskItem
-                                        key={rule.id}
-                                        title={rule.name}
-                                        status={rule.passed ? 'pass' : 'fail'}
-                                        severity={rule.severity}
-                                        details={rule.details}
-                                    />
-                                ))}
-                            </div>
+                    {loading ? (
+                        <div style={{ display: 'flex', justifyContent: 'center', paddingTop: '100px' }}>
+                            <Loader2 size={40} className="animate-spin" color="var(--primary)" />
                         </div>
-                    </>
-                )}
-            </div>
-        </main>
+                    ) : (
+                        <>
+                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '24px', marginBottom: '32px' }}>
+                                <ScoreCard title="Score de Conformidade" value={`${score}/100`} status={score > 80 ? "Bom" : "Risco"} color={score > 80 ? "var(--success)" : "var(--error)"} />
+                                <ScoreCard title="Erros Críticos" value={auditResults.filter(r => !r.passed && r.severity === 'critical').length} status="Bloqueante" color="var(--error)" />
+                                <ScoreCard title="Avisos de Qualidade" value={auditResults.filter(r => !r.passed && r.severity !== 'critical').length} status="Rever" color="var(--warning)" />
+                            </div>
+
+                            <div className={styles.card}>
+                                <div className={styles.cardHeader}>
+                                    <span className={styles.cardTitle}>Matriz de Auditoria</span>
+                                </div>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                                    {auditResults.map((rule) => (
+                                        <RiskItem
+                                            key={rule.id}
+                                            title={rule.name}
+                                            status={rule.passed ? 'pass' : 'fail'}
+                                            severity={rule.severity}
+                                            details={rule.details}
+                                        />
+                                    ))}
+                                </div>
+                            </div>
+                        </>
+                    )}
+                </div>
+            </main>
+        </PlanGuard>
     );
 }
 

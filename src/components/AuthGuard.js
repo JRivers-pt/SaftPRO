@@ -1,82 +1,98 @@
 "use client";
 import { useState, useEffect } from 'react';
 import styles from '../styles/Dashboard.module.css';
-import { Lock } from 'lucide-react';
-
+import { Lock, Play, ShieldCheck } from 'lucide-react';
 import { usePathname } from 'next/navigation';
+import { demoData } from '../lib/demoData';
+import { supabase } from '../lib/supabaseClient';
 
 export default function AuthGuard({ children }) {
     const pathname = usePathname();
-
-    // IMMEDIATE BYPASS for /reset route
-    useEffect(() => {
-        if (pathname === '/reset' && typeof window !== 'undefined') {
-            localStorage.clear();
-            sessionStorage.clear();
-            alert('✅ Cache limpa! Clique OK para continuar.');
-            window.location.href = '/';
-        }
-    }, [pathname]);
-
-    // If on reset page, show nothing while redirecting
-    if (pathname === '/reset') {
-        return (
-            <div style={{ padding: '40px', textAlign: 'center' }}>
-                <h2>🔄 A limpar...</h2>
-            </div>
-        );
-    }
-
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [loading, setLoading] = useState(true);
-    const [username, setUsername] = useState('');
+    const [username, setUsername] = useState(''); // Now using email
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
 
     useEffect(() => {
-        // Check if user is already authenticated
-        if (typeof window !== 'undefined') {
-            const clientData = sessionStorage.getItem('clientData');
-            if (clientData) {
-                setIsAuthenticated(true);
-            }
+        // 1. Reset bypass
+        if (pathname === '/reset' && typeof window !== 'undefined') {
+            localStorage.clear();
+            sessionStorage.clear();
+            alert('✅ Cache limpa!');
+            window.location.href = '/';
+            return;
+        }
+
+        // 2. Initial Auth Check
+        checkUser();
+    }, [pathname]);
+
+    const checkUser = async () => {
+        const { data: { session } } = await supabase.auth.getSession();
+        const demoActive = sessionStorage.getItem('clientData');
+        
+        if (session || demoActive) {
+            setIsAuthenticated(true);
         }
         setLoading(false);
-    }, []);
+    };
 
     const handleLogin = async (e) => {
         e.preventDefault();
         setError('');
+        setLoading(true);
 
-        try {
-            // Load client database
-            const response = await fetch('/clientDatabase.json');
-            const database = await response.json();
-
-            // Find matching client
-            const client = database.clients.find(
-                c => c.username === username && c.password === password
-            );
-
-            if (client) {
-                // Store client data in session
-                const clientData = {
-                    id: client.id,
-                    companyName: client.companyName,
-                    companyID: client.companyID,
-                    logo: client.logo,
-                    primaryColor: client.primaryColor,
-                    primaryLight: client.primaryLight
-                };
-                sessionStorage.setItem('clientData', JSON.stringify(clientData));
-                setIsAuthenticated(true);
-            } else {
-                setError('Credenciais inválidas. Verifique o utilizador e palavra-passe.');
-            }
-        } catch (error) {
-            console.error('Login error:', error);
-            setError('Erro ao efetuar login. Tente novamente.');
+        // Special Client: Conta Franca
+        if (username === 'contafranca' && password === 'cf2025') {
+            const clientData = {
+                id: 'contafranca',
+                companyName: 'Conta Franca',
+                email: 'comercial@techscire.pt',
+                plan: 'pro',
+                logo: '/logo.jpg'
+            };
+            sessionStorage.setItem('clientData', JSON.stringify(clientData));
+            setIsAuthenticated(true);
+            setLoading(false);
+            return;
         }
+
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: username,
+            password: password,
+        });
+
+        if (error) {
+            setError(error.message === 'Invalid login credentials' ? 'Utilizador ou password incorretos.' : error.message);
+            setLoading(false);
+            return;
+        }
+
+        // Success - Set session metadata
+        const clientData = {
+            id: data.user.id,
+            companyName: data.user.email.split('@')[0],
+            email: data.user.email,
+            plan: 'free' // Default
+        };
+        sessionStorage.setItem('clientData', JSON.stringify(clientData));
+        setIsAuthenticated(true);
+        setLoading(false);
+    };
+
+    const handleDemo = () => {
+        const demoClient = {
+            id: 'demo',
+            companyName: 'SaftPro Demo',
+            companyID: '501234567',
+            logo: '/logo.jpg',
+            primaryColor: '#3498db',
+            primaryLight: '#ebf5fb'
+        };
+        sessionStorage.setItem('clientData', JSON.stringify(demoClient));
+        sessionStorage.setItem('saftData', JSON.stringify(demoData));
+        setIsAuthenticated(true);
     };
 
     if (loading) return null; // Or a spinner
@@ -102,21 +118,29 @@ export default function AuthGuard({ children }) {
                     textAlign: 'center'
                 }}>
                     <div style={{
-                        background: 'var(--surface-highlight)',
-                        width: '64px',
-                        height: '64px',
-                        borderRadius: '32px',
+                        background: 'linear-gradient(135deg, var(--primary) 0%, #2c3e50 100%)',
+                        width: '80px',
+                        height: '80px',
+                        borderRadius: '20px',
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         margin: '0 auto 24px auto',
-                        color: 'var(--primary)'
+                        color: 'white',
+                        boxShadow: '0 8px 16px rgba(52, 152, 219, 0.2)'
                     }}>
-                        <Lock size={32} />
+                        <ShieldCheck size={40} />
                     </div>
 
-                    <h1 style={{ fontSize: '24px', fontWeight: 700, color: 'var(--text-main)', marginBottom: '8px' }}>SAFTPro</h1>
-                    <p style={{ color: 'var(--text-secondary)', marginBottom: '32px' }}>Acesso Reservado a Clientes</p>
+                    <h1 style={{ 
+                        fontSize: '28px', 
+                        fontWeight: 800, 
+                        background: 'linear-gradient(to right, var(--primary), #2c3e50)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        marginBottom: '4px' 
+                    }}>SAFTPro</h1>
+                    <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '32px' }}>Análise Inteligente de SAF-T</p>
 
                     <form onSubmit={handleLogin}>
                         <div style={{ marginBottom: '20px', textAlign: 'left' }}>
@@ -170,9 +194,32 @@ export default function AuthGuard({ children }) {
                             borderRadius: '8px',
                             fontSize: '16px',
                             fontWeight: 600,
-                            cursor: 'pointer'
+                            cursor: 'pointer',
+                            marginBottom: '12px'
                         }}>
                             Entrar
+                        </button>
+
+                        <button 
+                            type="button" 
+                            onClick={handleDemo}
+                            style={{
+                                width: '100%',
+                                padding: '12px',
+                                background: 'white',
+                                color: 'var(--primary)',
+                                border: '1px solid var(--primary)',
+                                borderRadius: '8px',
+                                fontSize: '15px',
+                                fontWeight: 500,
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '8px'
+                            }}
+                        >
+                            <Play size={16} fill="var(--primary)" /> Ver Demonstração (Demo)
                         </button>
 
                     </form>

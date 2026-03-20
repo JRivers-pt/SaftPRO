@@ -27,117 +27,147 @@ export const parseSaft = async (file) => {
                 const startDate = getTagValue(header, "StartDate");
                 const endDate = getTagValue(header, "EndDate");
 
-                // --- 2. Sales Totals & Invoice Extraction ---
+                // --- 2. MasterFiles (TaxTable & Customers) ---
+                const masterFiles = xmlDoc.getElementsByTagName("MasterFiles")[0];
+                const taxTableEntries = masterFiles ? masterFiles.getElementsByTagName("TaxTableEntry") : [];
+                const taxTable = {};
+                for (let i = 0; i < taxTableEntries.length; i++) {
+                    const code = getTagValue(taxTableEntries[i], "TaxCode");
+                    const percentage = parseFloat(getTagValue(taxTableEntries[i], "TaxPercentage") || "0");
+                    taxTable[code] = percentage;
+                }
+
+                // Customer Map for Name Lookup
+                const customerEntries = masterFiles ? masterFiles.getElementsByTagName("Customer") : [];
+                const customerMap = {};
+                for (let i = 0; i < customerEntries.length; i++) {
+                    const id = getTagValue(customerEntries[i], "CustomerID");
+                    const name = getTagValue(customerEntries[i], "CompanyName");
+                    customerMap[id] = name;
+                }
+
+                // --- 3. Sales Totals & Invoice Extraction ---
                 const salesInvoices = xmlDoc.getElementsByTagName("SalesInvoices")[0];
                 const totalCredit = parseFloat(getTagValue(salesInvoices, "TotalCredit") || "0");
                 const numberOfEntries = getTagValue(salesInvoices, "NumberOfEntries") || "0";
 
                 const invoices = salesInvoices ? salesInvoices.getElementsByTagName("Invoice") : [];
-                const invoiceList = []; // For CSV Export
-
-                // --- 3. Product Parsing (Top 5) & List Extraction ---
-                // We combine extracting top products and building the invoice list in one loop for efficiency
+                const invoiceList = [];
                 const productMap = {};
-                let lineCount = 0;
+                const clientVolumeMap = {};
+                const monthlyValues = new Array(12).fill(0);
+                const taxAggregation = {};
 
                 // Limit processing to avoid browser crash on massive files
-                const MAX_INVOICES = 5000;
+                const MAX_INVOICES = 10000; // Increased for Pro version
 
                 for (let i = 0; i < invoices.length; i++) {
                     if (i >= MAX_INVOICES) break;
 
-                    // Extract Invoice Data for CSV and Validation
                     const invoiceDate = getTagValue(invoices[i], "InvoiceDate");
                     const invoiceNo = getTagValue(invoices[i], "InvoiceNo");
-                    const customerID = getTagValue(invoices[i], "CustomerID"); // In real parser we'd look up Name
+                    const customerID = getTagValue(invoices[i], "CustomerID");
                     const taxID = getTagValue(invoices[i], "CustomerTaxID") || "999999990";
-                    const atcud = getTagValue(invoices[i], "ATCUD") || ""; // Extract ATCUD for validation
+                    const atcud = getTagValue(invoices[i], "ATCUD") || "";
+                    
                     const docTotalsElement = invoices[i].getElementsByTagName("DocumentTotals")[0];
                     const docTotal = parseFloat(getTagValue(docTotalsElement, "GrossTotal") || "0");
                     const taxPayable = parseFloat(getTagValue(docTotalsElement, "TaxPayable") || "0");
-                    // const netTotal = parseFloat(getTagValue(invoices[i].getElementsByTagName("DocumentTotals")[0], "NetTotal") || "0");
+                    const netTotal = parseFloat(getTagValue(docTotalsElement, "NetTotal") || "0");
+
+                    // 3a. Monthly Distribution
+                    if (invoiceDate) {
+                        const month = new Date(invoiceDate).getMonth();
+                        if (month >= 0 && month < 12) {
+                            monthlyValues[month] += docTotal;
+                        }
+                    }
+
+                    // 3b. Client Volume
+                    const clientName = customerMap[customerID] || `Cliente ${customerID}`;
+                    if (!clientVolumeMap[clientName]) clientVolumeMap[clientName] = 0;
+                    clientVolumeMap[clientName] += docTotal;
 
                     invoiceList.push({
                         date: invoiceDate,
                         no: invoiceNo,
-                        customer: `Clt ${customerID}`, // Simplified
+                        customer: clientName,
                         nif: taxID,
-                        atcud: atcud, // NEW: For ATCUD validation
+                        atcud: atcud,
                         total: docTotal,
-                        vat: taxPayable
+                        vat: taxPayable,
+                        net: netTotal
                     });
 
-                    // Product Parsing (Inner Lines)
+                    // 3c. Product & Tax Parsing (Lines)
                     const lines = invoices[i].getElementsByTagName("Line");
                     for (let j = 0; j < lines.length; j++) {
                         const prodDesc = getTagValue(lines[j], "ProductDescription") || "Desconhecido";
                         const creditAmount = parseFloat(getTagValue(lines[j], "CreditAmount") || "0");
-
+                        
+                        // Product Map
                         if (!productMap[prodDesc]) productMap[prodDesc] = 0;
                         productMap[prodDesc] += creditAmount;
-                        lineCount++;
+
+                        // Tax Aggregation (Precise)
+                        const taxElement = lines[j].getElementsByTagName("Tax")[0];
+                        const taxCode = getTagValue(taxElement, "TaxCode") || "ISE";
+                        const taxPercentage = parseFloat(getTagValue(taxElement, "TaxPercentage") || taxTable[taxCode] || "0");
+                        const lineVat = creditAmount * (taxPercentage / 100);
+
+                        if (!taxAggregation[taxCode]) {
+                            taxAggregation[taxCode] = { code: taxCode, percentage: taxPercentage, base: 0, amount: 0 };
+                        }
+                        taxAggregation[taxCode].base += creditAmount;
+                        taxAggregation[taxCode].amount += lineVat;
                     }
                 }
 
-                // Convert Map to Array and Sort
+                // --- 4. DATA TRANSFORMATION ---
+
+                // Monthly Data
+                const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+                const monthlyData = months.map((name, idx) => ({
+                    name,
+                    value: Math.round(monthlyValues[idx] * 100) / 100
+                }));
+
+                // Tax Breakdown
+                const taxBreakdown = Object.values(taxAggregation).sort((a, b) => b.percentage - a.percentage);
+
+                // Top Products
                 const topProducts = Object.entries(productMap)
                     .map(([name, value]) => ({ name, value }))
                     .sort((a, b) => b.value - a.value)
                     .slice(0, 5);
 
-                // Fallback if no lines found (e.g. only header SAFT)
-                if (topProducts.length === 0) {
-                    topProducts.push({ name: 'Serviços Diversos (Resumo)', value: totalCredit });
-                }
+                // Top Clients
+                const topClientsList = Object.entries(clientVolumeMap)
+                    .map(([name, value]) => ({ name, value }))
+                    .sort((a, b) => b.value - a.value)
+                    .slice(0, 5);
 
-                // --- 4. ADVANCED ACCOUNTING EXTRACTION (Continued) ---
+                // Fallbacks
+                if (topProducts.length === 0) topProducts.push({ name: 'S/ Informação', value: 0 });
+                if (topClientsList.length === 0) topClientsList.push({ name: 'S/ Informação', value: 0 });
 
-                // A. Monthly Breakdown (Simulated distribution)
-                const monthlyDistribution = [0.08, 0.07, 0.08, 0.09, 0.08, 0.10, 0.12, 0.06, 0.09, 0.08, 0.07, 0.08];
-                const monthlyData = monthlyDistribution.map((ratio, idx) => ({
-                    name: new Date(0, idx).toLocaleString('pt-PT', { month: 'short' }),
-                    value: Math.round(totalCredit * ratio)
-                }));
-
-                // B. Tax Breakdown (Map by TaxCode)
-                const taxCodes = [
-                    { code: 'NOR', rate: 0.23, ratio: 0.70 },
-                    { code: 'INT', rate: 0.13, ratio: 0.20 },
-                    { code: 'RED', rate: 0.06, ratio: 0.09 },
-                    { code: 'ISE', rate: 0.00, ratio: 0.01 }
-                ];
-
-                const taxBreakdown = taxCodes.map(t => {
-                    const base = totalCredit * t.ratio;
-                    return {
-                        code: t.code,
-                        percentage: t.rate * 100,
-                        base: base,
-                        amount: base * t.rate
-                    };
-                });
-
-                // D. Compliance & Audit (Computed via extraction loop or separate pass)
-                // For simplicity and to fix syntax, we re-run specific audit checks here on the extracted list
-                // (Since extracting all DOM nodes again is expensive, let's use the 'invoiceList' we just built!)
-
+                // --- 5. AUDIT & COMPATIBILITY ---
                 let invalidNifCount = 0;
-                let hashChainBroken = false;
                 let invoiceGaps = [];
                 const nifRegex = /^\d{9}$/;
 
                 invoiceList.forEach((inv, idx) => {
-                    // 1. NIF Validation
+                    // NIF Validation (Excluding Generic)
                     if (inv.nif !== "999999990" && !nifRegex.test(inv.nif)) invalidNifCount++;
 
-                    // 2. Sequence
+                    // Sequence Validation
                     const match = inv.no.match(/\/(\d+)$/);
                     if (match) {
                         const currentNo = parseInt(match[1]);
                         if (idx > 0) {
                             const prevMatch = invoiceList[idx - 1].no.match(/\/(\d+)$/);
                             if (prevMatch && parseInt(prevMatch[1]) !== currentNo - 1) {
-                                if (invoiceGaps.length < 5) invoiceGaps.push(inv.no);
+                                if (invoiceGaps.length < 10) invoiceGaps.push(`${prevMatch[1]} -> ${currentNo}`);
                             }
                         }
                     }
@@ -146,37 +176,25 @@ export const parseSaft = async (file) => {
                 const auditCompatibility = {
                     invoiceGaps,
                     invalidNifCount,
-                    hashChainBroken,
-                    totalTaxPayable: taxBreakdown.reduce((acc, curr) => acc + curr.amount, 0)
-                };
-
-                const structureCompatibility = {
-                    hasGeneralLedger: false,
-                    hasMasters: true,
-                    hasSourceDocuments: true,
+                    hashChainBroken: false,
+                    totalTaxPayable: taxBreakdown.reduce((acc, curr) => acc + curr.amount, 0),
+                    totalInvoiced: totalCredit
                 };
 
                 resolve({
                     fileName: file.name,
-                    header: {
-                        companyName,
-                        companyID,
-                        fiscalYear,
-                        startDate,
-                        endDate
-                    },
+                    header: { companyName, companyID, fiscalYear, startDate, endDate },
                     kpi: {
                         totalSales: totalCredit,
                         totalInvoices: numberOfEntries,
-                        productCount: topProducts.length // approximate
+                        productCount: Object.keys(productMap).length,
+                        clientCount: Object.keys(clientVolumeMap).length
                     },
                     monthlyData,
                     taxBreakdown,
                     topProducts,
-                    topClients: topProducts,
-                    invoiceList, // NEW: Exported for CSV
-                    struct: structureCompatibility,
-                    structure: structureCompatibility,
+                    topClients: topClientsList,
+                    invoiceList,
                     audit: auditCompatibility,
                     isRealData: true
                 });

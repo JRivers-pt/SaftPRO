@@ -75,54 +75,63 @@
 }
 
 .uploadCard {
-    background: var(--surface);
-    border: 2px dashed #cbd5e1;
-    /* Lighter dashed border */
-    border-radius: var(--radius-lg);
-    padding: 60px;
+    background: rgba(var(--surface-rgb), 1);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    padding: 80px 40px;
     text-align: center;
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
 }
 
 .uploadCard:hover {
     border-color: var(--primary);
-    background: #f8fafc;
-    transform: scale(1.005);
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
 .uploadIconWrapper {
     display: inline-flex;
-    padding: 24px;
-    background: #eff6ff;
-    /* Light blue bg */
-    border-radius: 50%;
+    padding: 28px;
+    background: rgba(var(--primary-rgb), 0.1);
+    border-radius: 24px;
     color: var(--primary);
-    margin-bottom: 24px;
-    box-shadow: none;
+    margin-bottom: 28px;
+    transition: transform 0.3s ease;
+}
+
+.uploadCard:hover .uploadIconWrapper {
+    transform: scale(1.1) rotate(5deg);
 }
 
 .uploadCard h3 {
-    font-size: 20px;
+    font-size: 24px;
+    font-weight: 800;
     color: var(--text-main);
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
 }
 
 .uploadCard p {
     color: var(--text-secondary);
-    margin-bottom: 16px;
+    margin-bottom: 24px;
+    font-size: 16px;
 }
 
 .supportedFormats {
     font-size: 12px;
-    color: var(--text-secondary);
-    background: #f1f5f9;
-    display: inline-block;
-    padding: 6px 16px;
+    color: var(--text-main);
+    background: var(--surface-highlight);
+    border: 1px solid var(--border);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
     border-radius: 20px;
-    font-weight: 500;
+    font-weight: 600;
 }
 
 /* Stats Grid */

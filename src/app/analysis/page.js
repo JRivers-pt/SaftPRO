@@ -9,6 +9,7 @@ import { AlertTriangle, TrendingUp, Users, FileText, Activity } from 'lucide-rea
 import TaxMapping from '../../components/TaxMapping';
 import TopProducts from '../../components/TopProducts';
 import VatDashboard from '../../components/VatDashboard'; // Reuse component
+import PlanGuard from '../../components/PlanGuard';
 
 export default function AnalysisPage() {
     const [saftData, setSaftData] = React.useState(null);
@@ -32,137 +33,139 @@ export default function AnalysisPage() {
     const activeClients = Math.floor(invoiceCount * 0.4) || 0;
 
     return (
-        <main style={{ background: 'var(--background)', minHeight: '100vh' }}>
-            <Sidebar />
+        <PlanGuard>
+            <main style={{ background: 'var(--background)', minHeight: '100vh' }}>
+                <Sidebar />
 
-            <div className={styles.container}>
-                <div className={styles.header}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                        <h1 className={styles.title}>Dashboard: {companyName}</h1>
-                        <span className={styles.anomalySeverity} style={{ background: 'var(--success)', color: '#fff', border: 'none' }}>ONLINE</span>
-                    </div>
-                    <p className={styles.subtitle}>
-                        {saftData?.header?.companyID ? `NIF: ${saftData.header.companyID} | ` : ''}
-                        Exercício: {saftData?.header?.fiscalYear || "---"}
-                    </p>
-                </div>
-
-                {/* 1. KPI Grid (The user requested this specific list) */}
-                <div className={styles.grid} style={{ marginBottom: '32px' }}>
-                    <div className={styles.card}>
-                        <div className={styles.cardHeader}>
-                            <span className={styles.cardTitle}>Volume de Vendas</span>
-                            <TrendingUp size={20} color="var(--primary)" />
+                <div className={styles.container}>
+                    <div className={styles.header}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                            <h1 className={styles.title}>Dashboard: {companyName}</h1>
+                            <span className={styles.anomalySeverity} style={{ background: 'var(--success)', color: '#fff', border: 'none' }}>ONLINE</span>
                         </div>
-                        <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-main)' }}>
-                            {new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(totalSales)}
-                        </div>
-                        <span style={{ fontSize: '12px', color: 'var(--success)', marginTop: '4px' }}>+0.0% (Período Único)</span>
+                        <p className={styles.subtitle}>
+                            {saftData?.header?.companyID ? `NIF: ${saftData.header.companyID} | ` : ''}
+                            Exercício: {saftData?.header?.fiscalYear || "---"}
+                        </p>
                     </div>
 
-                    <div className={styles.card}>
-                        <div className={styles.cardHeader}>
-                            <span className={styles.cardTitle}>Clientes Ativos</span>
-                            <Users size={20} color="var(--accent-secondary)" />
+                    {/* 1. KPI Grid (The user requested this specific list) */}
+                    <div className={styles.grid} style={{ marginBottom: '32px' }}>
+                        <div className={styles.card}>
+                            <div className={styles.cardHeader}>
+                                <span className={styles.cardTitle}>Volume de Vendas</span>
+                                <TrendingUp size={20} color="var(--primary)" />
+                            </div>
+                            <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-main)' }}>
+                                {new Intl.NumberFormat('pt-PT', { style: 'currency', currency: 'EUR' }).format(totalSales)}
+                            </div>
+                            <span style={{ fontSize: '12px', color: 'var(--success)', marginTop: '4px' }}>+0.0% (Período Único)</span>
                         </div>
-                        <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-main)' }}>
-                            {activeClients}
+
+                        <div className={styles.card}>
+                            <div className={styles.cardHeader}>
+                                <span className={styles.cardTitle}>Clientes Ativos</span>
+                                <Users size={20} color="var(--accent-secondary)" />
+                            </div>
+                            <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-main)' }}>
+                                {activeClients}
+                            </div>
+                        </div>
+
+                        <div className={styles.card}>
+                            <div className={styles.cardHeader}>
+                                <span className={styles.cardTitle}>Documentos</span>
+                                <FileText size={20} color="var(--text-secondary)" />
+                            </div>
+                            <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-main)' }}>
+                                {invoiceCount}
+                            </div>
+                            <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Processados com sucesso</span>
+                        </div>
+
+                        <div className={styles.card}>
+                            <div className={styles.cardHeader}>
+                                <span className={styles.cardTitle}>Alertas de Risco</span>
+                                <AlertTriangle size={20} color="var(--error)" />
+                            </div>
+                            <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--error)' }}>
+                                3
+                            </div>
+                            <span style={{ fontSize: '12px', color: 'var(--error)' }}>Requerem Atenção</span>
                         </div>
                     </div>
 
-                    <div className={styles.card}>
-                        <div className={styles.cardHeader}>
-                            <span className={styles.cardTitle}>Documentos</span>
-                            <FileText size={20} color="var(--text-secondary)" />
-                        </div>
-                        <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--text-main)' }}>
-                            {invoiceCount}
-                        </div>
-                        <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>Processados com sucesso</span>
-                    </div>
-
-                    <div className={styles.card}>
-                        <div className={styles.cardHeader}>
-                            <span className={styles.cardTitle}>Alertas de Risco</span>
-                            <AlertTriangle size={20} color="var(--error)" />
-                        </div>
-                        <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--error)' }}>
-                            3
-                        </div>
-                        <span style={{ fontSize: '12px', color: 'var(--error)' }}>Requerem Atenção</span>
-                    </div>
-                </div>
-
-                <div className={styles.grid}>
-                    {/* 2. VAT MAP (Central Feature) - Now Real Calculated */}
-                    <div className={`${styles.card} ${styles.fullWidth}`} style={{ padding: 0, border: 'none', background: 'transparent', boxShadow: 'none' }}>
-                        <VatDashboard overrideSales={totalSales} overrideVat={saftData?.audit?.totalTaxPayable} />
-                    </div>
-
-                    {/* 3. Detailed Tax Validation (Accountant Favorite) */}
-                    <div className={`${styles.card} ${styles.fullWidth}`}>
-                        <div className={styles.cardHeader}>
-                            <span className={styles.cardTitle}>Conferência de Impostos (Resumo por Taxa)</span>
-                            <FileText size={20} color="var(--primary)" />
-                        </div>
-                        <TaxMapping data={saftData?.taxBreakdown || []} />
-                    </div>
-
-                    {/* 4. Risk Analysis Preview */}
-                    <div className={styles.card}>
-                        <div className={styles.cardHeader}>
-                            <span className={styles.cardTitle}>Análise de Risco & Conformidade</span>
-                            <Activity size={20} color="var(--primary)" />
+                    <div className={styles.grid}>
+                        {/* 2. VAT MAP (Central Feature) - Now Real Calculated */}
+                        <div className={`${styles.card} ${styles.fullWidth}`} style={{ padding: 0, border: 'none', background: 'transparent', boxShadow: 'none' }}>
+                            <VatDashboard overrideSales={totalSales} overrideVat={saftData?.audit?.totalTaxPayable} />
                         </div>
 
-                        <div style={{ padding: '16px 0' }}>
-                            <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '16px' }}>
-                                Sistema profissional com 8 validações SAFT-PT.
-                            </p>
+                        {/* 3. Detailed Tax Validation (Accountant Favorite) */}
+                        <div className={`${styles.card} ${styles.fullWidth}`}>
+                            <div className={styles.cardHeader}>
+                                <span className={styles.cardTitle}>Conferência de Impostos (Resumo por Taxa)</span>
+                                <FileText size={20} color="var(--primary)" />
+                            </div>
+                            <TaxMapping data={saftData?.taxBreakdown || []} />
+                        </div>
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                                    <span style={{ color: 'var(--text-secondary)' }}>Score de Conformidade</span>
-                                    <span style={{ color: 'var(--success)', fontWeight: 600 }}>75/100</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                                    <span style={{ color: 'var(--text-secondary)' }}>Validações Aprovadas</span>
-                                    <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>6 de 8</span>
-                                </div>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
-                                    <span style={{ color: 'var(--text-secondary)' }}>Erros Críticos</span>
-                                    <span style={{ color: 'var(--error)', fontWeight: 600 }}>2</span>
-                                </div>
+                        {/* 4. Risk Analysis Preview */}
+                        <div className={styles.card}>
+                            <div className={styles.cardHeader}>
+                                <span className={styles.cardTitle}>Análise de Risco & Conformidade</span>
+                                <Activity size={20} color="var(--primary)" />
                             </div>
 
-                            <a href="/risk" style={{
-                                display: 'inline-block',
-                                width: '100%',
-                                padding: '12px 16px',
-                                background: 'var(--primary)',
-                                color: 'white',
-                                textAlign: 'center',
-                                borderRadius: '8px',
-                                textDecoration: 'none',
-                                fontWeight: 600,
-                                fontSize: '14px',
-                                transition: 'all 0.2s'
-                            }}>
-                                Ver Relatório Completo →
-                            </a>
+                            <div style={{ padding: '16px 0' }}>
+                                <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginBottom: '16px' }}>
+                                    Sistema profissional com 8 validações SAFT-PT.
+                                </p>
+
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '20px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                                        <span style={{ color: 'var(--text-secondary)' }}>Score de Conformidade</span>
+                                        <span style={{ color: 'var(--success)', fontWeight: 600 }}>75/100</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                                        <span style={{ color: 'var(--text-secondary)' }}>Validações Aprovadas</span>
+                                        <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>6 de 8</span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px' }}>
+                                        <span style={{ color: 'var(--text-secondary)' }}>Erros Críticos</span>
+                                        <span style={{ color: 'var(--error)', fontWeight: 600 }}>2</span>
+                                    </div>
+                                </div>
+
+                                <a href="/risk" style={{
+                                    display: 'inline-block',
+                                    width: '100%',
+                                    padding: '12px 16px',
+                                    background: 'var(--primary)',
+                                    color: 'white',
+                                    textAlign: 'center',
+                                    borderRadius: '8px',
+                                    textDecoration: 'none',
+                                    fontWeight: 600,
+                                    fontSize: '14px',
+                                    transition: 'all 0.2s'
+                                }}>
+                                    Ver Relatório Completo →
+                                </a>
+                            </div>
+                        </div>
+
+                        {/* 5. Top Products/Services (Replaces Clients) */}
+                        <div className={styles.card}>
+                            <TopProducts
+                                title="Top Produtos / Serviços (Volume de Vendas)"
+                                products={saftData?.topProducts || saftData?.topClients || []}
+                            />
                         </div>
                     </div>
-
-                    {/* 5. Top Products/Services (Replaces Clients) */}
-                    <div className={styles.card}>
-                        <TopProducts
-                            title="Top Produtos / Serviços (Volume de Vendas)"
-                            products={saftData?.topProducts || saftData?.topClients || []}
-                        />
-                    </div>
                 </div>
-            </div>
-        </main>
+            </main>
+        </PlanGuard>
     );
 }
 

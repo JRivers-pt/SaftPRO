@@ -118,11 +118,18 @@ export const generatePDF = (reportType, saftData) => {
     const risks = [
         ['Verificação', 'Estado', 'Detalhes'],
         [
-            'Sequência de Faturas (ATCUD)',
+            'Sequência de Faturas (Números)',
             audit.invoiceGaps?.length > 0 ? 'FALHA' : 'OK',
             audit.invoiceGaps?.length > 0
                 ? `${audit.invoiceGaps.length} quebra(s) detetada(s)`
                 : 'Numeração sequencial correta'
+        ],
+        [
+            'Sequência Cronológica (Datas)',
+            saftData?.audit?.invoiceGapsCronological?.length > 0 || !saftData?.audit?.cronologyOk ? 'CRÍTICO' : 'OK',
+            saftData?.audit?.cronologyOk === false 
+                ? 'Detetadas inversões de data na sequência'
+                : 'Cronologia de faturação íntegra'
         ],
         [
             'Validação de NIFs',

@@ -5,7 +5,11 @@ import {
     ShieldAlert,
     BarChart3,
     Settings,
-    LogOut
+    LogOut,
+    FileStack,
+    CreditCard,
+    HelpCircle,
+    ShieldCheck
 } from 'lucide-react';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
@@ -27,8 +31,8 @@ export default function Sidebar() {
         }
     }, []);
 
-    const companyName = clientData?.companyName || 'SaftPro';
-    const logo = clientData?.logo || '/logo.jpg';
+    const companyName = clientData?.companyName || 'SAFTPro';
+    const isBranded = !clientData?.logo || clientData?.id === 'demo';
 
     // Split company name for styling
     const nameParts = companyName.split(' ');
@@ -38,9 +42,46 @@ export default function Sidebar() {
     return (
         <aside className={styles.sidebar}>
             <div className={styles.logo}>
-                {/* Using a simple img tag for the uploaded file in public */}
-                <img src={logo} alt={`${companyName} Logo`} style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'contain' }} />
-                <span>{firstName}{restName && <span style={{ color: 'var(--primary)' }}>{restName}</span>}</span>
+                {isBranded ? (
+                    <div style={{ 
+                        background: 'linear-gradient(135deg, var(--primary) 0%, #2c3e50 100%)',
+                        width: '40px', 
+                        height: '40px', 
+                        borderRadius: '10px', 
+                        display: 'flex', 
+                        alignItems: 'center', 
+                        justifyContent: 'center',
+                        color: 'white'
+                    }}>
+                        <ShieldCheck size={24} />
+                    </div>
+                ) : (
+                    <img 
+                        src={clientData.logo} 
+                        alt={`${companyName} Logo`} 
+                        style={{ width: '40px', height: '40px', borderRadius: '8px', objectFit: 'contain' }} 
+                    />
+                )}
+                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                    <span style={{ fontWeight: 800, fontSize: '18px' }}>
+                        {firstName}{restName && <span style={{ color: 'var(--primary)', fontWeight: 800 }}>{restName}</span>}
+                    </span>
+                    {clientData?.plan === 'pro' && (
+                        <span style={{ 
+                            fontSize: '10px', 
+                            background: 'var(--primary)', 
+                            color: 'white', 
+                            padding: '2px 8px', 
+                            borderRadius: '10px',
+                            fontWeight: 700,
+                            width: 'fit-content',
+                            marginTop: '2px',
+                            textTransform: 'uppercase'
+                        }}>
+                            Pro Professional
+                        </span>
+                    )}
+                </div>
             </div>
 
             <nav className={styles.nav}>
@@ -51,20 +92,42 @@ export default function Sidebar() {
                     isActive={pathname === '/'}
                 />
                 <NavItem
+                    href="/history"
+                    icon={<FileStack size={20} />}
+                    label="Histórico"
+                    isActive={pathname === '/history'}
+                />
+                <NavItem
                     href="/analysis"
                     icon={<FileText size={20} />}
                     label="Análise Detalhada"
                     isActive={pathname === '/analysis'}
+                    isLocked={clientData?.plan === 'free'}
                 />
                 <NavItem
                     href="/risk"
                     icon={<ShieldAlert size={20} />}
                     label="Análise de Risco"
+                    isActive={pathname === '/risk'}
+                    isLocked={clientData?.plan === 'free'}
                 />
                 <NavItem
                     href="/reports"
                     icon={<BarChart3 size={20} />}
                     label="Relatórios"
+                    isActive={pathname === '/reports'}
+                    isLocked={clientData?.plan === 'free'}
+                />
+                <NavItem
+                    href="/subscription"
+                    icon={<CreditCard size={20} />}
+                    label="Subscrição"
+                    isActive={pathname === '/subscription'}
+                />
+                <NavItem
+                    href="mailto:suporte@saftpro.pt"
+                    icon={<HelpCircle size={20} />}
+                    label="Suporte Técnico"
                 />
             </nav>
 
@@ -101,12 +164,13 @@ export default function Sidebar() {
     );
 }
 
-function NavItem({ icon, label, isActive, href }) {
+function NavItem({ icon, label, isActive, href, isLocked }) {
     return (
-        <Link href={href || '#'} style={{ textDecoration: 'none' }}>
-            <div className={`${styles.navItem} ${isActive ? styles.active : ''}`}>
+        <Link href={isLocked ? '/subscription' : (href || '#')} style={{ textDecoration: 'none' }}>
+            <div className={`${styles.navItem} ${isActive ? styles.active : ''} ${isLocked ? styles.locked : ''}`}>
                 {icon}
-                <span>{label}</span>
+                <span style={{ flex: 1 }}>{label}</span>
+                {isLocked && <Lock size={14} style={{ opacity: 0.5 }} />}
                 {isActive && <div className={styles.activeIndicator} />}
             </div>
         </Link>

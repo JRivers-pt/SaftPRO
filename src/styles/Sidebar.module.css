@@ -61,6 +61,13 @@
     /* Strong Blue Text */
 }
 
+.locked {
+    opacity: 0.5;
+    cursor: not-allowed;
+    filter: grayscale(1);
+    pointer-events: none;
+}
+
 .activeIndicator {
     position: absolute;
     left: 0;
